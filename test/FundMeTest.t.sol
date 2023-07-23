@@ -6,10 +6,10 @@ import {Test, console} from "forge-std/Test.sol";
 import {FundMe} from "../src/FundMe.sol";
 
 contract FundMeTest is Test {
-    uint256 number = 1;
+    FundMe fundMe;
 
     function setUp() external {
-        FundMe fundMe = new FundMe(); // FundMe variable
+        fundMe = new FundMe(); // fundMe variable of FundMe type = new FundMe contract
     }
 
     function testDemo() public {}
