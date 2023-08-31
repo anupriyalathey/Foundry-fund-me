@@ -6,11 +6,16 @@ import {Test, console} from "forge-std/Test.sol";
 import {FundMe} from "../src/FundMe.sol";
 
 contract FundMeTest is Test {
-    FundMe fundMe;
+    FundMe fundMe; //made a state variable
 
     function setUp() external {
         fundMe = new FundMe(); // fundMe variable of FundMe type = new FundMe contract
     }
 
-    function testDemo() public {}
+    // function testDemo() public {
+        
+    // }
+    function testMinimumDollarIsFive() public {
+        assertEq(fundMe.MINIMUM_USD(), 5e18); //test contract gave access to assertEq fn
+    }
 }
