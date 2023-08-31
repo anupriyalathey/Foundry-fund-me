@@ -18,4 +18,16 @@ contract FundMeTest is Test {
     function testMinimumDollarIsFive() public {
         assertEq(fundMe.MINIMUM_USD(), 5e18); //test contract gave access to assertEq fn
     }
+
+
+    function testOwnerIsMsgSender() public {
+        console.log(fundMe.i_owner());
+        console.log(msg.sender);
+        console.log(address(this));
+        // it will show error since 
+        // us -> fundMeTest -> fundMe
+        //so fundMeTest should be owner
+        // assertEq(fundMe.i_owner(), msg.sender);
+        assertEq(fundMe.i_owner(), address(this));
+    }
 }
