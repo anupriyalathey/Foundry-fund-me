@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "forge": "^2.3.0"
+    "forge": "^2.3.0",
+    "forge-std": "^1.1.2"
   }
 }
