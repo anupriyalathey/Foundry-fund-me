@@ -34,14 +34,14 @@ contract FundMeTest is Test {
 
 
     function testOwnerIsMsgSender() public {
-        console.log(fundMe.i_owner());
+        console.log(fundMe.getOwner());
         console.log(msg.sender);
         console.log(address(this));
         // it will show error since 
         // us -> fundMeTest -> fundMe (us calling FundMeTest which deploys FundMe)
         // so fundMeTest should be owner of fundMe
         // assertEq(fundMe.i_owner(), msg.sender); --> test will fail
-        assertEq(fundMe.i_owner(), msg.sender);
+        assertEq(fundMe.getOwner(), msg.sender);
     }
 
     function testPriceFeedVersionIsAccurate () public {
@@ -57,12 +57,77 @@ contract FundMeTest is Test {
         // (bool revertAsExpected,) = address(fundMe).call{value: 1e18}("");
         // assertTrue(revertAsExpected, "expectedRevert: call did not revert");
     }
-        function testFundUpdatesFundedDataStructure() public {
-            //To be clear about who sends the transaction use pranks(cheatcode from foundry)
-            vm.prank(USER); // The next TX will be sent by USER
 
-            fundMe.fund{value: SEND_VALUE}(); // 10 eth
-            uint256 amountFunded = fundMe.getAddressToAmountFunded(address(USER));
-            assertEq(amountFunded, SEND_VALUE);
+    function testFundUpdatesFundedDataStructure() public {
+            //To be clear about who sends the transaction use pranks(cheatcode from foundry)
+        vm.prank(USER); // The next TX will be sent by USER
+
+        fundMe.fund{value: SEND_VALUE}(); // 10 eth
+        uint256 amountFunded = fundMe.getAddressToAmountFunded(address(USER));
+        assertEq(amountFunded, SEND_VALUE);
     }
+
+    function testAddsFunderToArrayOfFunders() public {
+        vm.prank(USER);
+        fundMe.fund{value: SEND_VALUE}();
+
+        address funder = fundMe.getFunder(0);
+        assertEq(funder, USER);
+    }
+
+    modifier funded() {
+        vm.prank(USER);
+        fundMe.fund{value: SEND_VALUE}();
+        _;
+    }
+
+    function testOnlyOwnerCanWithdraw() public funded {
+        vm.prank(USER);
+
+        // When USER tries to withdraw, it should fail; since it is not the owner
+        vm.expectRevert(); // Next line it sees to revert is fundMe.withdraw(); ignores vm lines(cheatcodes)
+        fundMe.withdraw();
+    }
+
+    function testWithdrawWithASingleFunder() public funded {
+        // Arrange
+        uint256 startingOwnerBalance = fundMe.getOwner().balance;
+        uint256 startingFundMeBalance = address(fundMe).balance;
+
+        // Act
+        vm.prank(fundMe.getOwner());
+        fundMe.withdraw();
+
+        // Assert
+        uint256 endingOwnerBalance = fundMe.getOwner().balance;
+        uint256 endingFundMeBalance = address(fundMe).balance;
+        assertEq(endingFundMeBalance, 0);
+        assertEq(startingFundMeBalance + startingOwnerBalance, endingOwnerBalance);
+    }
+
+    function testWithdrawFromMultipleFunders() public funded {
+        //Arrange
+        uint160 numberOfFunders = 10;
+        uint160 startingFunderIndex = 1;
+        for(uint160 i = startingFunderIndex; i < numberOfFunders; i++) {
+            // vm.prank
+            // vm.deal
+            hoax(address(i) , SEND_VALUE);
+            // fund the fundMe
+            fundMe.fund{value: SEND_VALUE}();
+        }
+
+        uint256 startingOwnerBalance = fundMe.getOwner().balance;
+        uint256 startingFundMeBalance = address(fundMe).balance;
+
+        // Act
+        vm.startPrank(fundMe.getOwner());
+        fundMe.withdraw();
+        vm.stopPrank();
+
+        // Assert
+        assert(address(fundMe).balance == 0);
+        assert(startingFundMeBalance + startingOwnerBalance == fundMe.getOwner().balance);
+    }
+
 }
