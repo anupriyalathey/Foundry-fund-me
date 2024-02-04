@@ -28,7 +28,7 @@ contract HelperConfig is Script{
         } else if (block.chainid == 1) {
             activeNetworkConfig = getMainnetEthConfig();
         } else {
-            activeNetworkConfig = getAnvilEthConfig();
+            activeNetworkConfig = getOrCreateAnvilEthConfig();
         }
     }
 
@@ -49,8 +49,14 @@ contract HelperConfig is Script{
     return ethConfig;
     }
 
-    function getAnvilEthConfig() public returns(NetworkConfig memory){
+    function getOrCreateAnvilEthConfig() public returns(NetworkConfig memory){
         // price feed address
+
+        // If already deployed priceFeed address is present, return it
+        // address(0) -> Default value for address
+        if (activeNetworkConfig.priceFeed != address(0)) {
+            return activeNetworkConfig;
+        }
 
         // 1. Deploy the mocks (Dummy contract that we own and can control)
         // 2. Return the mock adddresses
