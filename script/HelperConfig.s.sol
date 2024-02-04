@@ -15,6 +15,9 @@ contract HelperConfig is Script{
     // Otherwise, grab the existing address from the live network
     NetworkConfig public activeNetworkConfig;
 
+    uint8 public constant DECIMALS = 8;
+    int256 public constant INITIAL_PRICE = 2000e8;
+
     struct NetworkConfig {
         address priceFeed;
     }
@@ -54,7 +57,10 @@ contract HelperConfig is Script{
 
         // since using vm, remove 'pure' from function
         vm.startBroadcast();
-        MockV3Aggregator mockPriceFeed = new MockV3Aggregator(8, 2000e8);
+        MockV3Aggregator mockPriceFeed = new MockV3Aggregator(
+            DECIMALS, 
+            INITIAL_PRICE
+        );
         vm.stopBroadcast();
 
         NetworkConfig memory anvilConfig = NetworkConfig({
