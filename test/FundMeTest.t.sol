@@ -13,6 +13,7 @@ contract FundMeTest is Test {
     address USER = makeAddr("user");
     uint256 constant SEND_VALUE = 0.1 ether; // decimals don't work in solidity but 0.1 ether = 10e7
     uint256 constant STARTING_BALANCE = 10 ether;
+    uint256 constant GAS_PRICE = 1;
 
     function setUp() external {
         // us -> FundMeTest -> fundMe
@@ -95,6 +96,7 @@ contract FundMeTest is Test {
         uint256 startingFundMeBalance = address(fundMe).balance;
 
         // Act
+        // sets the gas price to for rest of the tx
         vm.prank(fundMe.getOwner());
         fundMe.withdraw();
 
