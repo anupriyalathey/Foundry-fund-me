@@ -15,7 +15,6 @@ library PriceConverter {
         //     0x694AA1769357215DE4FAC081bf1f309aDC325306
         // ); 
         // Avoid hard coding the above address, we can pass it as a parameter to the constructor
-
         (, int256 answer, , , ) = priceFeed.latestRoundData();
         // ETH/USD rate in 18 digit
         return uint256(answer * 10000000000);
